@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yoru no Kakurega ♡</title>
+<style>
+:root {
+ --bg:#211916; --panel:#392923; --accent:#e8c6a0;
+ --text:#fff0df; --soft:#d8bca4;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Georgia,serif;transition:.4s;
+}
+button,input,textarea{font:inherit}
+button{
+ cursor:pointer;border:1px solid var(--accent);
+ background:var(--accent);color:#39251f;
+ padding:11px 17px;border-radius:25px;
+}
+button:hover{transform:translateY(-2px)}
+.screen{display:none;min-height:100vh;padding:25px 6%}
+.screen.active{display:block}
+.center{
+ min-height:90vh;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;text-align:center;
+}
+h1{font-size:clamp(35px,7vw,65px);font-weight:400}
+h2{font-weight:400;color:var(--accent)}
+p{line-height:1.7;color:var(--soft)}
+.panel{
+ background:var(--panel);border:1px solid #88644f;
+ padding:22px;border-radius:20px;margin:15px 0;
+}
+.grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+ gap:15px;margin:25px 0;
+}
+.card{
+ background:var(--panel);border:1px solid #80604d;
+ padding:20px;border-radius:18px;text-align:center;
+ cursor:pointer;transition:.2s;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.card .emoji{font-size:38px;display:block;margin-bottom:10px}
+input,textarea{
+ width:100%;padding:13px;margin:8px 0;
+ background:#251c19;color:white;border:1px solid #80604d;
+ border-radius:12px;
+}
+textarea{min-height:100px}
+nav{
+ display:flex;gap:9px;flex-wrap:wrap;
+ margin:15px 0 25px;
+}
+nav button{font-size:13px}
+.small{font-size:13px}
+.character{
+ background:var(--panel);padding:14px;border-radius:15px;
+ border:2px solid transparent;text-align:center;cursor:pointer;
+}
+.character.selected{border-color:var(--accent)}
+.character span{font-size:34px;display:block}
+.message{
+ background:#594034;padding:12px 15px;border-radius:15px;
+ margin:10px 0;max-width:85%;overflow-wrap:anywhere;
+}
+.mine{margin-left:auto;background:#79534a}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: WELCOME -->
+<section id="welcome" class="screen active">
+ <div class="center">
+  <div style="font-size:65px">🏮🌸</div>
+  <p>夜の隠れ家</p>
+  <h1>Yoru no Kakurega</h1>
+  <h2>A Secret World, Just for Two.</h2>
+  <p>A little world where only our stories belong.</p>
+  <button onclick="show('gate')">Enter Our World ♡</button>
+ </div>
+</section>
+
+<!-- PAGE 2: SECRET GATE -->
+<section id="gate" class="screen">
+ <div class="center">
+  <div style="font-size:55px">🔐</div>
+  <h1>The Secret Gate</h1>
+  <p>Only those who know our secret can enter.</p>
+  <input id="secret" placeholder="Enter our secret code">
+  <button onclick="unlock()">Unlock Our World</button>
+  <p id="gateMsg"></p>
+ </div>
+</section>
+
+<!-- PAGE 3: DASHBOARD -->
+<section id="dashboard" class="screen">
+ <header>
+  <p>夜の隠れ家 · OUR LITTLE WORLD</p>
+  <h1>Welcome to our little world ♡</h1>
+  <p>A place for memories, secrets and endless conversations.</p>
+ </header>
+ <nav>
+  <button onclick="show('dashboard')">Home</button>
+  <button onclick="show('chat')">Chat</button>
+  <button onclick="show('letters')">Letters</button>
+  <button onclick="show('jar')">Question Jar</button>
+  <button onclick="show('mood')">Mood Garden</button>
+  <button onclick="show('studio')">Customize 🎨</button>
+ </nav>
+ <div class="panel">
+  <h2>Our Secret Hideaway 🏯</h2>
+  <p>Two hearts, one little universe.</p>
+  <div style="font-size:55px">⚡ 🎀 🌸 🏮</div>
+ </div>
+ <h2>Explore our world</h2>
+ <div class="grid">
+  <div class="card" onclick="show('chat')"><span class="emoji">💬</span>Private Chat Room</div>
+  <div class="card" onclick="show('letters')"><span class="emoji">💌</span>Secret Letters</div>
+  <div class="card" onclick="show('jar')"><span class="emoji">🫙</span>Question Jar</div>
+  <div class="card" onclick="show('mood')"><span class="emoji">🌷</span>Mood Garden</div>
+  <div class="card" onclick="show('studio')"><span class="emoji">🎨</span>Character Studio</div>
+ </div>
+</section>
+
+<!-- PAGE 4: CHAT -->
+<section id="chat" class="screen">
+ <button onclick="show('dashboard')">← Home</button>
+ <h1>Our Private Chat 💬</h1>
+ <div class="panel">
+  <p>Demo chat · Messages stay in this browser only.</p>
+  <div id="messages"></div>
+  <input id="chatName" placeholder="Your name">
+  <input id="chatInput" placeholder="Write something sweet..."
+   onkeydown="if(event.key==='Enter')sendMessage()">
+  <button onclick="sendMessage()">Send ♡</button>
+ </div>
+</section>
+
+<!-- PAGE 5: SECRET LETTERS -->
+<section id="letters" class="screen">
+ <button onclick="show('dashboard')">← Home</button>
+ <h1>Secret Letters 💌</h1>
+ <div class="panel">
+  <input id="letterTitle" placeholder="Letter title">
+  <textarea id="letterText" placeholder="Write your heart out..."></textarea>
+  <button onclick="saveLetter()">Seal My Letter ♡</button>
+ </div>
+ <div id="letterList" class="grid"></div>
+</section>
+
+<!-- PAGE 6: QUESTION JAR -->
+<section id="jar" class="screen">
+ <button onclick="show('dashboard')">← Home</button>
+ <h1>The Question Jar 🫙</h1>
+ <div class="panel center" style="min-height:300px">
+  <div style="font-size:65px">🏺</div>
+  <h2 id="question">Pick a question from our magical jar.</h2>
+  <button onclick="drawQuestion()">Draw a Question ✨</button>
+ </div>
+</section>
+
+<!-- PAGE 7: MOOD GARDEN -->
+<section id="mood" class="screen">
+ <button onclick="show('dashboard')">← Home</button>
+ <h1>The Mood Garden 🌷</h1>
+ <p>Every feeling deserves a little space to bloom.</p>
+ <div class="grid">
+  <div class="card" onclick="chooseMood('Happy','☀️')">☀️ Happy</div>
+  <div class="card" onclick="chooseMood('Calm','🍃')">🍃 Calm</div>
+  <div class="card" onclick="chooseMood('Loved','💗')">💗 Loved</div>
+  <div class="card" onclick="chooseMood('Tired','🌙')">🌙 Tired</div>
+  <div class="card" onclick="chooseMood('Sad','🌧️')">🌧️ Sad</div>
+  <div class="card" onclick="chooseMood('Mixed Up','🦋')">🦋 Mixed Up</div>
+ </div>
+ <div class="panel center">
+  <div id="moodEmoji" style="font-size:55px">🌱</div>
+  <h2 id="moodTitle">Your garden is waiting</h2>
+  <textarea id="moodNote" placeholder="Write a little note..."></textarea>
+  <button onclick="saveMood()">Plant this feeling ♡</button>
+  <div id="moodHistory"></div>
+ </div>
+</section>
+
+<!-- CHARACTER STUDIO -->
+<section id="studio" class="screen">
+ <button onclick="show('dashboard')">← Home</button>
+ <h1>Character & Theme Studio 🎨</h1>
+ <p>Choose your personal character or create a shared world together.</p>
+
+ <div class="panel">
+  <h2>Choose your settings</h2>
+  <select id="mode" onchange="changeMode()">
+   <option value="A">My Personal World — Person A</option>
+   <option value="B">My Personal World — Person B</option>
+   <option value="shared">Our Shared World</option>
+  </select>
+  <p id="selectedInfo">Choose your favourite character.</p>
+ </div>
+
+ <h2>Choose your Demon Slayer character</h2>
+ <div id="characters" class="grid"></div>
+
+ <h2>Choose your theme</h2>
+ <div class="grid" id="themes">
+  <div class="card" onclick="setTheme('#392923','#e8c6a0')">🏮 Infinity Castle</div>
+  <div class="card" onclick="setTheme('#38202e','#f3a9c5')">🎀 Nezuko Pink</div>
+  <div class="card" onclick="setTheme('#292b43','#f4d35e')">⚡ Zenitsu Yellow</div>
+  <div class="card" onclick="setTheme('#263b35','#9ed5b0')">🌿 Forest Green</div>
+  <div class="card" onclick="setTheme('#26354c','#a9c8ef')">💧 Water Blue</div>
+  <div class="card" onclick="setTheme('#402323','#e6a17f')">🔥 Flame Red</div>
+  <div class="card" onclick="setTheme('#3b3048','#d6b9ee')">🦋 Wisteria Purple</div>
+  <div class="card" onclick="setTheme('#42364a','#f1b5c9')">🌸 Sakura Dream</div>
+ </div>
+ <button onclick="applySettings()">Apply My Choices ♡</button>
+</section>
+
+<script>
+const characters = [
+ ["Tanjiro Kamado","🌊","#26354c","#a9c8ef"],
+ ["Nezuko Kamado","🎀","#38202e","#f3a9c5"],
+ ["Zenitsu Agatsuma","⚡","#292b43","#f4d35e"],
+ ["Inosuke Hashibira","🐗","#35402e","#a7c77d"],
+ ["Giyu Tomioka","💧","#26354c","#a9c8ef"],
+ ["Shinobu Kocho","🦋","#3b3048","#d6b9ee"],
+ ["Kyojuro Rengoku","🔥","#402323","#e6a17f"],
+ ["Mitsuri Kanroji","💗","#38202e","#f3a9c5"],
+ ["Muichiro Tokito","☁️","#293c43","#a5d5d6"],
+ ["Sanemi Shinazugawa","🌪️","#344038","#b9d2aa"],
+ ["Obanai Iguro","🐍","#302a3d","#c3b3db"],
+ ["Tengen Uzui","✨","#3c3042","#e6c0df"],
+ ["Gyomei Himejima","🙏","#38332b","#d4c3a1"],
+ ["Kanao Tsuyuri","🌸","#3b3048","#e8b9d0"],
+ ["Genya Shinazugawa","🌑","#333039","#c1b6c9"],
+ ["Aoi Kanzaki","💠","#26354c","#a9c8ef"],
+ ["Kanae Kocho","🌷","#3b3048","#e7bfd1"],
+ ["Akaza","🥊","#42272c","#e89a9a"],
+ ["Doma","❄️","#293b4a","#a9d8e8"],
+ ["Kokushibo","🌙","#382c39","#c9a8c5"],
+ ["Muzan Kibutsuji","🩸","#3c2025","#d88b91"],
+ ["Tamayo","🌺","#443040","#dfabc8"],
+ ["Yushiro","🖌️","#303b42","#b1c6cf"],
+ ["Rui","🕸️","#343343","#c9c2e6"],
+ ["Enmu","💤","#393044","#c7a6d9"],
+ ["Daki","💎","#45303e","#eab0cf"],
+ ["Gyutaro","☠️","#39302e","#b5a58c"],
+ ["Kaigaku","⚡","#343048","#c7a6e5"],
+ ["Nakime","🎵","#392c31","#d1a5a9"]
+];
+
+let selections = {
+ A:{name:"Nezuko Kamado",bg:"#38202e",accent:"#f3a9c5"},
+ B:{name:"Zenitsu Agatsuma",bg:"#292b43",accent:"#f4d35e"},
+ shared:{name:"Tanjiro Kamado",bg:"#26354c",accent:"#a9c8ef"}
+};
+let selectedKey="A",selectedMood="",selectedEmoji="";
+
+function show(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ window.scrollTo(0,0);
+}
+function unlock(){
+ if(document.getElementById("secret").value.trim()==="KAKUREGA02"){
+  show("dashboard");
+ }else{
+  document.getElementById("gateMsg").textContent="Wrong secret code. Try again ♡";
+ }
+}
+function changeMode(){
+ selectedKey=document.getElementById("mode").value;
+ renderCharacters();
+}
+function renderCharacters(){
+ const container=document.getElementById("characters");
+ container.innerHTML="";
+ characters.forEach(c=>{
+  const card=document.createElement("div");
+  card.className="character"+(selections[selectedKey].name===c[0]?" selected":"");
+  card.innerHTML=`<span>${c[1]}</span><strong>${c[0]}</strong>`;
+  card.onclick=()=>{
+   selections[selectedKey].name=c[0];
+   selections[selectedKey].bg=c[2];
+   selections[selectedKey].accent=c[3];
+   renderCharacters();
+   document.getElementById("selectedInfo").textContent="Selected: "+c[0];
+  };
+  container.appendChild(card);
+ });
+}
+function setTheme(bg,accent){
+ selections[selectedKey].bg=bg;
+ selections[selectedKey].accent=accent;
+ document.documentElement.style.setProperty("--panel",bg);
+ document.documentElement.style.setProperty("--accent",accent);
+}
+function applySettings(){
+ const s=selections[selectedKey];
+ document.documentElement.style.setProperty("--panel",s.bg);
+ document.documentElement.style.setProperty("--accent",s.accent);
+ document.getElementById("selectedInfo").textContent=
+ "Applied: "+s.name+" ♡";
+}
+function sendMessage(){
+ const input=document.getElementById("chatInput");
+ const name=document.getElementById("chatName").value.trim()||"Me";
+ const value=input.value.trim();
+ if(!value)return;
+ const el=document.createElement("div");
+ el.className="message mine";
+ el.textContent=name+": "+value;
+ document.getElementById("messages").appendChild(el);
+ input.value="";
+}
+function saveLetter(){
+ const title=document.getElementById("letterTitle").value.trim()||"A little letter";
+ const body=document.getElementById("letterText").value.trim();
+ if(!body)return alert("Write your letter first ♡");
+ const el=document.createElement("div");
+ el.className="card";
+ const h=document.createElement("h2");h.textContent="💌 "+title;
+ const p=document.createElement("p");p.textContent=body;
+ el.append(h,p);
+ document.getElementById("letterList").prepend(el);
+ document.getElementById("letterText").value="";
+}
+const questions=[
+ "What's your favourite memory of us?",
+ "If we could travel anywhere, where would we go?",
+ "What always makes you smile?",
+ "What is one secret dream you have?",
+ "What's something you want us to do together?",
+ "Describe our friendship in three words.",
+ "What makes you feel appreciated?",
+ "What's your funniest childhood memory?",
+ "What is one thing you never want to forget?"
+];
+function drawQuestion(){
+ document.getElementById("question").textContent=
+ questions[Math.floor(Math.random()*questions.length)];
+}
+function chooseMood(name,emoji){
+ selectedMood=name;selectedEmoji=emoji;
+ document.getElementById("moodEmoji").textContent=emoji;
+ document.getElementById("moodTitle").textContent=name;
+}
+function saveMood(){
+ if(!selectedMood)return alert("Choose a mood first ♡");
+ const p=document.createElement("p");
+ p.textContent=selectedEmoji+" "+selectedMood+" — "+document.getElementById("moodNote").value;
+ document.getElementById("moodHistory").prepend(p);
+ document.getElementById("moodNote").value="";
+}
+renderCharacters();
+</script>
+</body>
+</html>
